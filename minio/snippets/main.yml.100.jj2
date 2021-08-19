@@ -1,0 +1,3 @@
+
+- name: Deploy Minio
+  import_playbook: minio.yml

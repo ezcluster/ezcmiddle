@@ -1,0 +1,104 @@
+
+- name: Ensure minio binary dir exists
+  file:
+    state: directory
+    path: "{{ minio_binary_dir }}" 
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+    mode: 0755
+
+- name: Check for existing binary
+  stat:
+    path: "{{ minio_binary_dir }}/minio"
+  register: minio_binary_stat_result
+  
+  
+- name: Download minio server binary
+  get_url:
+    url: "{{ minio_download_url }}"
+    dest: "{{ minio_binary_dir }}/minio"
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+    mode: 0700
+  when: minio_always_update_binary or not minio_binary_stat_result.stat.exists
+
+
+- name: Ensure minio etc dir exists
+  file:
+    state: directory
+    path: "{{ minio_etc_dir }}" 
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+    mode: 0700
+
+- name: Configure environment
+  template:
+    src: setenv.sh.j2
+    dest: "{{ minio_etc_dir }}/setenv.sh"
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+    mode: 0600
+  notify:
+  - restart_minio
+
+- name: "Setup systemd unit file for {{ minio_service_name }}"
+  template:
+    src: minio.service.j2
+    dest: "/usr/lib/systemd/system/{{ minio_service_name }}.service"
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+    mode: 0644
+  notify:
+  - reload_service_file      
+  - restart_minio
+  
+- name: "Setup TLS"
+  block:
+  - name: Ensure minio certs dir exists
+    file:
+      state: directory
+      path: "{{ minio_certs_dir }}" 
+      owner: "{{ minio_user }}"
+      group: "{{ minio_group }}"
+      mode: 0755
+  - name: Copy Certificate
+    copy:
+      src: "{{minio_tls_crt}}"
+      dest: "{{ minio_certs_dir }}/public.crt" 
+      owner: "{{ minio_user }}"
+      group: "{{ minio_group }}"
+      mode: 0600
+    notify:
+    - restart_minio
+  - name: Copy Private key
+    copy:
+      src: "{{minio_tls_key}}"
+      dest: "{{ minio_certs_dir }}/private.key" 
+      owner: "{{ minio_user }}"
+      group: "{{ minio_group }}"
+      mode: 0600
+    notify:
+    - restart_minio
+  when: minio_tls_crt is defined
+
+- name: "Remove TLS"
+  block:
+  - name: Ensure minio certs dir is deleted
+    file:
+      state: absent
+      path: "{{ minio_certs_dir }}" 
+    notify:
+    - restart_minio
+  when: minio_tls_crt is not defined
+  
+
+# ------------------------------------ Service activate and start   
+- meta: flush_handlers
+   
+- name: "Enable {{ minio_service_name }} service"
+  service:
+    name: "{{ minio_service_name }}"
+    enabled: yes
+    state: started        
+          
+    
