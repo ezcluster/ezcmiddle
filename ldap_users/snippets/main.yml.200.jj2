@@ -1,0 +1,4 @@
+
+- name: "Ldap users handling"
+  import_playbook: "ldap_users.yml"
+

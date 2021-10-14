@@ -1,0 +1,162 @@
+---
+# Copyright (C) 2017 BROADSoftware
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+#limitations under the License.
+#
+
+- name: Create Domain(s)
+  ldap_entry:
+    server_uri: "{{ldap_server}}"
+    bind_dn: "{{ldap_bind_dn}}"
+    bind_pw: "{{ldap_bind_password}}"
+    dn: "{{item}}"
+    objectClass:
+    - domain
+    - top
+  with_items: 
+    "{{ ldap_domains }}"
+
+- name: Create Users OU
+  ldap_entry:
+    server_uri: "{{ldap_server}}"
+    bind_dn: "{{ldap_bind_dn}}"
+    bind_pw: "{{ldap_bind_password}}"
+    dn: "{{ldap_users_ou}}"
+    objectClass:
+    - organizationalUnit
+    - top
+
+- name: Create Groups OU
+  ldap_entry:
+    server_uri: "{{ldap_server}}"
+    bind_dn: "{{ldap_bind_dn}}"
+    bind_pw: "{{ldap_bind_password}}"
+    dn: "{{ldap_groups_ou}}"
+    objectClass:
+    - organizationalUnit
+    - top
+
+- name: Create Posix user(s) 
+  ldap_entry:
+    server_uri: "{{ldap_server}}"
+    bind_dn: "{{ldap_bind_dn}}"
+    bind_pw: "{{ldap_bind_password}}"
+    dn: "{{item.dn}}"
+    objectClass:
+    - top
+    - inetOrgPerson
+    - posixAccount
+    attributes:
+      uid: "{{item.uid}}"
+      cn: "{{item.cn}}"
+      uidNumber: "{{item.uidNumber}}"
+      gidNumber: "{{item.gidNumber}}"
+      homeDirectory: "{{item.homeDirectory}}"
+      sn: "{{item.sn}}"
+  with_items: 
+    "{{ldap_posix_users}}"
+  loop_control:
+    label: "{{item.uid}}"
+
+- name: Create Person user(s) 
+  ldap_entry:
+    server_uri: "{{ldap_server}}"
+    bind_dn: "{{ldap_bind_dn}}"
+    bind_pw: "{{ldap_bind_password}}"
+    dn: "{{item.dn}}"
+    objectClass:
+    - top
+    - inetOrgPerson
+    attributes:
+      cn: "{{item.cn}}"
+      sn: "{{item.sn}}"
+  with_items: 
+    "{{ldap_person_users}}"
+  loop_control:
+    label: "{{item.cn}}"
+
+- name: Create Posix groups(s) 
+  ldap_entry:
+    server_uri: "{{ldap_server}}"
+    bind_dn: "{{ldap_bind_dn}}"
+    bind_pw: "{{ldap_bind_password}}"
+    dn: "{{item.dn}}"
+    objectClass:
+    - top
+    - posixGroup
+    attributes:
+      cn: "{{item.cn}}"
+      gidNumber: "{{item.gidNumber}}"
+  with_items: 
+    "{{posix_groups}}"
+  loop_control:
+    label: "{{item.cn}}"
+
+- name: Create LDAP groups(s) 
+  ldap_entry:
+    server_uri: "{{ldap_server}}"
+    bind_dn: "{{ldap_bind_dn}}"
+    bind_pw: "{{ldap_bind_password}}"
+    dn: "{{item.dn}}"
+    objectClass:
+    - top
+    - groupOfNames
+    attributes:
+      cn: "{{item.cn}}"
+      member: ""    # A member is mandatory
+  with_items: 
+    "{{ldap_groups}}"
+  loop_control:
+    label: "{{item.cn}}"
+
+- name: Handle users attribute
+  ldap_attr:
+    server_uri: "{{ldap_server}}"
+    bind_dn: "{{ldap_bind_dn}}"
+    bind_pw: "{{ldap_bind_password}}"
+    dn: "{{item.dn}}"
+    name: "{{item.name}}"
+    values: "{{item.value}}"
+    state: exact            
+  with_items: 
+    "{{ldap_attributes}}"
+  loop_control:
+    label: "{{item.dn}} => {{item.name}}"
+    
+- name: Setup Posix user(s) password in ldap
+  ldap_passwd:
+    server_uri: "{{ldap_server}}"
+    bind_dn: "{{ldap_bind_dn}}"
+    bind_pw: "{{ldap_bind_password}}"
+    dn: "{{item.dn}}"
+    passwd: "{{item.password}}"
+  with_items: 
+    "{{ldap_passwords}}"
+  when: item.password is defined  
+  loop_control:
+    label: "{{item.dn}}"
+
+- name: Handle groups memberships
+  ldap_attr:
+    server_uri: "{{ldap_server}}"
+    bind_dn: "{{ldap_bind_dn}}"
+    bind_pw: "{{ldap_bind_password}}"
+    dn: "{{item.dn}}"
+    name: "{{item.name}}"
+    values: "{{item.value}}"
+    state: present            
+  with_items: 
+    "{{ldap_memberships}}"
+  loop_control:
+    label: "{{item.dn}} <=> {{item.value}}"
+        

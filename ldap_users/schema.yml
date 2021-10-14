@@ -1,0 +1,58 @@
+# Copyright (C) 2018 BROADSoftware
+#
+# This file is part of EzCluster
+#
+# EzCluster is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# EzCluster is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with EzCluster.  If not, see <http://www.gnu.org/licenses/lgpl-3.0.html>.
+
+
+type: map
+mapping:
+  "ldap_users":
+    type: map
+    required: true
+    mapping:
+      "disabled": { type: bool, required: false }
+      "relay_host": { type: str, required: false }    # default to ldap_server[0]
+      "ldap_url": { type: str, required: false }      # Default to "ldapi:///" 
+      "admin_bind_dn": { type: str, required: true }
+      "admin_bind_password": { type: str, required: true }
+      "users_ou": { type: str, required: true }
+      "groups_ou": { type: str, required: true }
+      "domains":
+        type: seq
+        required: false
+        sequence:
+        - type: str
+      "users":     
+        type: seq
+        required: false
+        sequence:
+        - type: map
+          mapping:
+            regex;(.*):
+              type: any
+      "groups": 
+        type: seq
+        required: false
+        sequence:
+        - type: map
+          mapping:
+            "users":
+              type: seq
+              required: false
+              sequence:
+              - type: str
+            regex;(.*):
+              type: any
+   

@@ -1,0 +1,72 @@
+
+- hosts: {{{m.cluster.ldap_users.relay_host}}}
+  any_errors_fatal: true
+  tags: [ "ldap", "ldap_users" ] 
+  vars:
+    ldap_server: "{{{ m.cluster.ldap_users.ldap_url }}}"
+    ldap_bind_dn: "{{{  m.cluster.ldap_users.admin_bind_dn }}}"
+    ldap_bind_password: "{{{ m.cluster.ldap_users.admin_bind_password }}}"
+    ldap_users_ou: "{{{ m.cluster.ldap_users.users_ou }}}"
+    ldap_groups_ou: "{{{ m.cluster.ldap_users.groups_ou }}}"
+
+{%% if m.cluster.ldap_users.domains|length > 0 %%}
+    ldap_domains:
+{{{ m.cluster.ldap_users.domains | to_pretty_yaml() | indent(width=4, first=True) }}}
+{%% else %%}
+    ldap_domains: []
+{%% endif %%}    
+    
+{%% if m.data.ldap.posixUsers|length > 0 %%}
+    ldap_posix_users:
+{{{ m.data.ldap.posixUsers | to_pretty_yaml() | indent(width=4, first=True) }}}
+{%% else %%}
+    ldap_posix_users: []
+{%% endif %%}    
+    
+{%% if m.data.ldap.personUsers|length > 0 %%}
+    ldap_person_users:
+{{{  m.data.ldap.personUsers | to_pretty_yaml() | indent(width=4, first=True) }}}
+{%% else %%}
+    ldap_person_users: []
+{%% endif %%}    
+        
+{%% if m.data.ldap.attributes|length > 0 %%}
+    ldap_attributes:
+{{{  m.data.ldap.attributes | to_pretty_yaml() | indent(width=4, first=True) }}}
+{%% else %%}
+    ldap_attributes: []
+{%% endif %%}    
+        
+{%% if m.data.ldap.passwords|length > 0 %%}
+    ldap_passwords:
+{{{  m.data.ldap.passwords | to_pretty_yaml() | indent(width=4, first=True) }}}
+{%% else %%}
+    ldap_passwords: []
+{%% endif %%}    
+                
+{%% if m.data.ldap.posixGroups|length > 0 %%}
+    posix_groups:
+{{{  m.data.ldap.posixGroups | to_pretty_yaml() | indent(width=4, first=True) }}}
+{%% else %%}
+    posix_groups: []
+{%% endif %%}    
+        
+{%% if m.data.ldap.ldapGroups|length > 0 %%}
+    ldap_groups:
+{{{  m.data.ldap.ldapGroups | to_pretty_yaml() | indent(width=4, first=True) }}}
+{%% else %%}
+    ldap_groups: []
+{%% endif %%}    
+        
+{%% if m.data.ldap.memberships|length > 0 %%}
+    ldap_memberships:
+{{{  m.data.ldap.memberships | to_pretty_yaml() | indent(width=4, first=True) }}}
+{%% else %%}
+    ldap_memberships: []
+{%% endif %%}    
+        
+
+
+    
+  roles:
+  - ldap_users
