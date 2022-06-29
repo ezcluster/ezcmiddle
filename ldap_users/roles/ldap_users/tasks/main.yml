@@ -120,18 +120,17 @@
     label: "{{item.cn}}"
 
 - name: Handle users attribute
-  ldap_attr:
+  ldap_attrs:
     server_uri: "{{ldap_server}}"
     bind_dn: "{{ldap_bind_dn}}"
     bind_pw: "{{ldap_bind_password}}"
     dn: "{{item.dn}}"
-    name: "{{item.name}}"
-    values: "{{item.value}}"
-    state: exact            
+    attributes: "{{ item.attributes }}"
+    state: exact
   with_items: 
     "{{ldap_attributes}}"
   loop_control:
-    label: "{{item.dn}} => {{item.name}}"
+    label: "{{item.dn}} => {{item.attributes}}"
     
 - name: Setup Posix user(s) password in ldap
   ldap_passwd:
@@ -147,16 +146,15 @@
     label: "{{item.dn}}"
 
 - name: Handle groups memberships
-  ldap_attr:
+  ldap_attrs:
     server_uri: "{{ldap_server}}"
     bind_dn: "{{ldap_bind_dn}}"
     bind_pw: "{{ldap_bind_password}}"
     dn: "{{item.dn}}"
-    name: "{{item.name}}"
-    values: "{{item.value}}"
-    state: present            
+    attributes: "{{ item.attributes }}"
+    state: present
   with_items: 
     "{{ldap_memberships}}"
   loop_control:
-    label: "{{item.dn}} <=> {{item.value}}"
+    label: "{{item.dn}} <=> {{item.attributes}}"
         

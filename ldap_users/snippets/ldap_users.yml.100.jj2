@@ -29,14 +29,17 @@
 {%% else %%}
     ldap_person_users: []
 {%% endif %%}    
-        
+
 {%% if m.data.ldap.attributes|length > 0 %%}
     ldap_attributes:
-{{{  m.data.ldap.attributes | to_pretty_yaml() | indent(width=4, first=True) }}}
+{%% for attr in m.data.ldap.attributes %%}
+    - dn: {{{ attr.dn }}}
+      attributes: { {{{ attr.name }}}: {{{ attr.value }}} }
+{%% endfor %%}
 {%% else %%}
     ldap_attributes: []
-{%% endif %%}    
-        
+{%% endif %%}
+
 {%% if m.data.ldap.passwords|length > 0 %%}
     ldap_passwords:
 {{{  m.data.ldap.passwords | to_pretty_yaml() | indent(width=4, first=True) }}}
@@ -60,11 +63,13 @@
         
 {%% if m.data.ldap.memberships|length > 0 %%}
     ldap_memberships:
-{{{  m.data.ldap.memberships | to_pretty_yaml() | indent(width=4, first=True) }}}
+{%% for mbs in m.data.ldap.memberships %%}
+    - dn: {{{ mbs.dn }}}
+      attributes: { {{{ mbs.name }}}: {{{ mbs.value }}} }
+{%% endfor %%}
 {%% else %%}
     ldap_memberships: []
-{%% endif %%}    
-        
+{%% endif %%}
 
 
     
