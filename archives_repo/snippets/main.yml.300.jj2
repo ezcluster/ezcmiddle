@@ -1,9 +1,4 @@
 
+- name: "Archives repo setup"
+  import_playbook: "archives_repo.yml"
 
-- hosts: all
-  vars:
-    archives_repo_base_dir: {{{ m.cluster.archives_repo.base_dir }}}
-    archives_repo_archives:
-{{{ m.cluster.archives_repo.archives | to_pretty_yaml() | indent(width=6, first=True)  }}}
-  roles:
-    - archives_repo
