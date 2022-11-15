@@ -1,0 +1,9 @@
+
+
+# archives_repo_base_dir: /data/archives_repo
+
+#archives_repo_archives:
+#  - url: https://github.com/goharbor/harbor/releases/download/v2.6.2/harbor-online-installer-v2.6.2.tgz
+#    path: harbor/harbor-online-installer-v2.6.2.tgz
+#  - url: https://github.com/derailed/k9s/releases/download/v0.26.7/k9s_Linux_x86_64.tar.gz
+#    path: kubernetes/k9s/k9s_Linux_x86_64-v0.26.7.tar.gz

@@ -1,0 +1,42 @@
+
+- name: Install required packages
+  apt:
+    update_cache: yes
+    state: latest
+    pkg:
+      apache2
+
+- name: Create repo base directory
+  ansible.builtin.file:
+    path: "{{archives_repo_base_dir}}"
+    state: directory
+    recurse: true
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: Setup web server config
+  ansible.builtin.template:
+    src: archives_repo.conf.j2
+    dest: /etc/apache2/conf-enabled/archives_repo.conf
+    mode: '0644'
+    owner: root
+    group: root
+  notify: restart_apache2
+
+
+- name: Create required target folder
+  ansible.builtin.file:
+    path: "{{archives_repo_base_dir}}/{{ item.path | dirname }}"
+    state: directory
+    recurse: true
+    mode: '0755'
+    owner: root
+    group: root
+  with_items: "{{archives_repo_archives}}"
+
+- name: Populate archive
+  ansible.builtin.get_url:
+    url: "{{item.url}}"
+    dest: "{{archives_repo_base_dir}}/{{item.path}}"
+  with_items: "{{archives_repo_archives}}"
