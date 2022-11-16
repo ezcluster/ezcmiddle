@@ -1,0 +1,34 @@
+
+- hosts: harbor
+  vars:
+    harbor_scheme: {{{m.cluster.harbor.scheme}}}
+{%% if m.cluster.harbor.scheme == 'https' %%}
+    harbor_ssl_cert_src: {{{m.cluster.harbor.ssl_cert_src}}}
+    harbor_ssl_key_src: {{{m.cluster.harbor.ssl_key_src}}}
+{%% endif %%}
+    harbor_version: {{{ m.data.repositories.harbor.version}}}
+    harbor_url: {{{ m.data.repositories.harbor.harbor_tgz_url}}}
+    harbor_hostname: "{{{m.cluster.harbor.hostname}}}"
+    harbor_admin_password: {{{m.cluster.harbor.admin_password}}}
+    harbor_db_password: {{{m.cluster.harbor.db_password}}}
+    harbor_trivy: {{{ m.cluster.harbor.trivy }}}
+    harbor_notary: {{{ m.cluster.harbor.notary }}}
+    harbor_chartmuseum: {{{ m.cluster.harbor.chartmuseum }}}
+{%% if m.cluster.harbor.users is defined %%}
+    harbor_users:
+{{{ m.cluster.harbor.users | to_pretty_yaml | indent(width=4, first=true) }}}    
+{%% endif %%}
+{%% if m.cluster.harbor.projects is defined %%}
+    harbor_projects:
+{{{ m.cluster.harbor.projects | to_pretty_yaml | indent(width=4, first=true) }}}    
+{%% endif %%}
+    harbor_validate_api_cert:  {{{m.cluster.harbor.validate_api_cert}}}
+{%% if m.cluster.harbor.configurations is defined %%}
+    harbor_configurations:
+{{{ m.cluster.harbor.configurations | to_pretty_yaml | indent(width=4, first=true) }}}    
+{%% endif %%}
+  roles:
+  - harbor
+  
+  
+  

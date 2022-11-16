@@ -1,0 +1,4 @@
+
+- name: "Harbor setup"
+  import_playbook: "harbor.yml"
+
