@@ -17,6 +17,7 @@ mapping:
             sequence:
               - type: map
                 mapping:
+                  "name": { type: str, required: false}    # Not used. For documentation
                   "url": { type: str, required: true }
                   "path": { type: str, required: true }
       "apt_cacher":
