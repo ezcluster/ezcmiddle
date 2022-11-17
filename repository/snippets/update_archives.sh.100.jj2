@@ -1,0 +1,7 @@
+
+MYDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+cd ${MYDIR}
+
+ezcluster ../{{{m.cluster.id}}}.yml && ansible-playbook archives_repo.yml
+

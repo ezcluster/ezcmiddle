@@ -1,0 +1,8 @@
+
+- hosts: all
+  vars:
+    archives_repo_base_dir: {{{ m.cluster.repository.archives.base_dir }}}
+    archives_repo_archives:
+{{{ m.cluster.repository.archives.archives | to_pretty_yaml() | indent(width=6, first=True)  }}}
+  roles:
+    - archives_repo

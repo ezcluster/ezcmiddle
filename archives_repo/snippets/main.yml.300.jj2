@@ -1,4 +1,0 @@
-
-- name: "Archives repo setup"
-  import_playbook: "archives_repo.yml"
-

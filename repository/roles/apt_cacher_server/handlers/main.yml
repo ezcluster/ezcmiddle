@@ -1,0 +1,14 @@
+
+- name: restart apache2
+  ansible.builtin.service:
+    name: apache2
+    state: restarted
+  listen: restart_apache2
+
+
+- name: restart apt-cacher
+  ansible.builtin.service:
+    name: apt-cacher
+    state: restarted
+  listen: restart_apt_cacher
+

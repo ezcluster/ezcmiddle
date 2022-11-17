@@ -1,10 +1,10 @@
 
 - name: Install required packages
-  apt:
+  ansible.builtin.apt:
     update_cache: yes
     state: latest
     pkg:
-      apache2
+      - apache2
 
 - name: Create repo base directory
   ansible.builtin.file:

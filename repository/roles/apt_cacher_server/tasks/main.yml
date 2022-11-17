@@ -1,0 +1,25 @@
+
+- name: Install apache if not already
+  ansible.builtin.apt:
+    update_cache: yes
+    state: latest
+    pkg:
+      - apache2
+
+- name: Install apt-cacher
+  ansible.builtin.apt:
+    update_cache: yes
+    state: latest
+    pkg:
+      - apt-cacher
+  notify: restart_apache2
+
+- name: Configure apt-cacher
+  ansible.builtin.lineinfile:
+    path: /etc/apt-cacher/apt-cacher.conf
+    regexp: '^#[\s]*allowed_hosts'
+    line: "allowed_hosts = {{ apt_cacher_allowed_hosts }}"
+  notify: restart_apt_cacher
+
+
+

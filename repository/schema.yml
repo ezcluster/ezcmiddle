@@ -1,0 +1,26 @@
+
+
+type: map
+mapping:
+  "repository":
+    type: map
+    mapping:
+      "disabled": { type: bool, required: false }   # Default: False
+      "archives":
+        type: map
+        mapping:
+          "disabled": { type: bool, required: false }   # Default: False
+          "base_dir": { type: str, required: false }  # Default: /data/archives_repo
+          "archives":
+            type: seq
+            required: false
+            sequence:
+              - type: map
+                mapping:
+                  "url": { type: str, required: true }
+                  "path": { type: str, required: true }
+      "apt_cacher":
+        type: map
+        mapping:
+          "disabled": { type: bool, required: false }   # Default: False
+          "allowed_hosts": { type: str, required: false }   # default: "*"
