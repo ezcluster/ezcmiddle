@@ -1,5 +1,6 @@
 
 - hosts: all
+  tags: [ "archives", "archive" ]
   vars:
     archives_repo_base_dir: {{{ m.cluster.repository.archives.base_dir }}}
     archives_repo_archives:
