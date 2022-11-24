@@ -1,0 +1,26 @@
+
+- hosts: squid
+  tags: [ "squid" ]
+  vars:
+    squid_cache_dir: {{{ m.cluster.squid.cache_dir }}}
+{%% if m.cluster.squid.acls|length > 0 %%}
+    squid_acls:
+{%% for acl in m.cluster.squid.acls %%}
+      - name: {{{ acl.name }}}
+        classifier: {{{ acl.classifier }}}
+        value: {{{ acl.value }}}
+{%% endfor %%}
+{%% endif %%}
+{%% if m.cluster.squid.rules|length > 0 %%}
+    squid_rules:
+{%% for rule in m.cluster.squid.rules %%}
+      - acl: {{{ rule.acl }}}
+        decision: {{{ rule.decision }}}
+{%% endfor %%}
+{%% endif %%}
+
+  roles:
+  - squid
+  
+  
+  
