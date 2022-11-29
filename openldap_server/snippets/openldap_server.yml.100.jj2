@@ -1,0 +1,16 @@
+
+- hosts: ldap_server
+  tags: [ "ldap", "ldap_server" ]
+  any_errors_fatal: true
+  vars:
+    openldap_query_suffix: "{{{ m.cluster.openldap_server.query_suffix }}}"
+    openldap_admin_bind_password: {{{ m.cluster.openldap_server.admin_bind_password }}}
+    openldap_admin_bind_dn: {{{ m.cluster.openldap_server.admin_bind_dn }}}
+    openldap_server: "{{ ansible_fqdn }}"
+{%% if m.cluster.openldap_server.ssl_cert_path is defined %%}
+    open_ldap_ssl_cert_path: {{{m.cluster.openldap_server.ssl_cert_path }}}
+    open_ldap_ssl_key_path: {{{m.cluster.openldap_server.ssl_key_path }}}
+{%% endif %%}
+  roles:
+  - { role: openldap_server }
+
