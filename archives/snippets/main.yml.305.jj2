@@ -1,0 +1,7 @@
+
+
+{%% if not m.cluster.archives.disabled %%}
+- name: "Archives repo setup"
+  import_playbook: "archives_repo.yml"
+{%% endif %%}
+

@@ -1,5 +1,6 @@
 
 - hosts: harbor
+  tags: ["harbor"]
   vars:
     harbor_scheme: {{{m.cluster.harbor.scheme}}}
 {%% if m.cluster.harbor.scheme == 'https' %%}
