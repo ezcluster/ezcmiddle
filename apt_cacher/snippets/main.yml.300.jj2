@@ -1,0 +1,7 @@
+
+
+
+{%% if not m.cluster.apt_cacher.disabled %%}
+- name: "Apt cacher setup"
+  import_playbook: "apt_cacher_server.yml"
+{%% endif %%}

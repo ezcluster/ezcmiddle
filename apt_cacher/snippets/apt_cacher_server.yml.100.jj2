@@ -2,6 +2,6 @@
 - hosts: apt-cacher
   tags: ["apt_cacher", "apt-cacher"]
   vars:
-    apt_cacher_allowed_hosts: "{{{ m.cluster.repository.apt_cacher.allowed_hosts }}}"
+    apt_cacher_allowed_hosts: "{{{ m.cluster.apt_cacher.allowed_hosts }}}"
   roles:
     - apt_cacher_server

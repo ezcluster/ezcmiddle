@@ -1,0 +1,9 @@
+
+
+type: map
+mapping:
+  "apt_cacher":
+    type: map
+    mapping:
+      "disabled": { type: bool, required: false }   # Default: False
+      "allowed_hosts": { type: str, required: false }   # default: "*"
