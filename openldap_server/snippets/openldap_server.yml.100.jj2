@@ -1,16 +1,55 @@
-
+#
+#- hosts: ldap_server
+#  tags: [ "ldap", "ldap_server" ]
+#  any_errors_fatal: true
+#  vars:
+#    openldap_query_suffix: "{{{ m.cluster.openldap_server.query_suffix }}}"
+#    openldap_admin_bind_password: {{{ m.cluster.openldap_server.admin_bind_password }}}
+#    openldap_admin_bind_dn: {{{ m.cluster.openldap_server.admin_bind_dn }}}
+#    openldap_server: "{{ ansible_fqdn }}"
+#{%% if m.cluster.openldap_server.ssl_cert_path is defined %%}
+#    open_ldap_ssl_cert_path: {{{m.cluster.openldap_server.ssl_cert_path }}}
+#    open_ldap_ssl_key_path: {{{m.cluster.openldap_server.ssl_key_path }}}
+#{%% endif %%}
+#  roles:
+#  - { role: openldap_server }
+#
+#
 - hosts: ldap_server
   tags: [ "ldap", "ldap_server" ]
   any_errors_fatal: true
   vars:
-    openldap_query_suffix: "{{{ m.cluster.openldap_server.query_suffix }}}"
-    openldap_admin_bind_password: {{{ m.cluster.openldap_server.admin_bind_password }}}
-    openldap_admin_bind_dn: {{{ m.cluster.openldap_server.admin_bind_dn }}}
-    openldap_server: "{{ ansible_fqdn }}"
+    ldap_basedn:              {{{ m.cluster.openldap_server.query_suffix }}}         # Base DN
+    ldap_server_uri:          ldap://localhost:389       # LDAP server URI. used for this playbook
+    ldap_admin_bind_dn:       {{{ m.cluster.openldap_server.admin_bind_dn }}}
+    ldap_admin_bind_password: {{{ m.cluster.openldap_server.admin_bind_password }}}                     # bind password
 {%% if m.cluster.openldap_server.ssl_cert_path is defined %%}
-    open_ldap_ssl_cert_path: {{{m.cluster.openldap_server.ssl_cert_path }}}
-    open_ldap_ssl_key_path: {{{m.cluster.openldap_server.ssl_key_path }}}
+    open_ldap_ssl_cert_path:  {{{m.cluster.openldap_server.ssl_cert_path }}}
+    open_ldap_ssl_key_path:   {{{m.cluster.openldap_server.ssl_key_path }}}
 {%% endif %%}
+    ldap_users: []
+    ldap_groups: []
+#    ldap_users:
+#      user_id1:
+#        cn: Name1 Surname1
+#        givenname: Name1
+#        sn: Surname1
+#        mail: userid1@mydomain.net
+#        userpassword: password
+#      user_id2:
+#        cn: Name2 Surname2
+#        givenname: Name2
+#        sn: Surname2
+#        mail: userid2@mydomain.net
+#        userpassword: password
+#    ldap_groups:
+#      - name: group1
+#        members:
+#          - user_id1
+#      - name: group2
+#        members:
+#          - user_id1
+#          - user_id2
   roles:
   - { role: openldap_server }
-
+#

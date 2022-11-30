@@ -1,0 +1,57 @@
+- name: Load users
+  ldap_entry:
+    server_uri: "{{ldap_server_uri}}"
+    bind_dn: "{{ldap_admin_bind_dn}}"
+    bind_pw: "{{ldap_admin_bind_password}}"
+    dn: "uid={{item.key}},ou=people,{{ldap_basedn}}"
+    objectClass:
+      - person
+      - organizationalPerson
+      - inetOrgPerson
+      - top
+    attributes:
+      cn: "{{item.value.cn}}"
+      givenname: "{{item.value.givenname}}"
+      sn: "{{item.value.sn}}"
+      uid: "{{item.key}}"
+      mail: "{{item.value.mail}}"
+      userpassword: "{{item.value.userpassword}}"
+      #employeeNumber: "{{item.value.employeeNumber}}"
+  with_dict: "{{ldap_users}}"
+
+- name: Load groups
+  ldap_entry:
+    server_uri: "{{ldap_server_uri}}"
+    bind_dn: "{{ldap_admin_bind_dn}}"
+    bind_pw: "{{ldap_admin_bind_password}}"
+    dn: "cn={{item.name}},ou=groups,{{ldap_basedn}}"
+    objectClass:
+      - groupOfUniqueNames
+      - top
+    attributes:
+      uniqueMember: "uid=dummy,ou=people,{{ldap_basedn}}"
+  with_items: "{{ldap_groups}}"
+
+- name: Add users to groups
+  ldap_attrs:
+    server_uri: "{{ldap_server_uri}}"
+    bind_dn: "{{ldap_admin_bind_dn}}"
+    bind_pw: "{{ldap_admin_bind_password}}"
+    dn: "cn={{item.0.name}},ou=groups,{{ldap_basedn}}"
+    attributes:
+      uniqueMember: "uid={{item.1}},ou=people,{{ldap_basedn}}"
+    state: present
+  with_subelements:
+    - "{{ldap_groups}}"
+    - members
+
+- name: Remove dummy entry
+  ldap_attrs:
+    server_uri: "{{ldap_server_uri}}"
+    bind_dn: "{{ldap_admin_bind_dn}}"
+    bind_pw: "{{ldap_admin_bind_password}}"
+    dn: "cn={{item.name}},ou=groups,{{ldap_basedn}}"
+    attributes:
+      uniqueMember: "uid=dummy,ou=people,{{ldap_basedn}}"
+    state: absent
+  with_items: "{{ldap_groups}}"
