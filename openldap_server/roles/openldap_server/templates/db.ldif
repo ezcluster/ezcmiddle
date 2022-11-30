@@ -1,0 +1,25 @@
+dn: olcDatabase={{dbtype}},cn=config
+changetype: modify
+replace: olcSuffix
+olcSuffix: {{ldap_basedn}}
+
+dn: olcDatabase={{dbtype}},cn=config
+changetype: modify
+replace: olcRootDN
+olcRootDN: {{ldap_admin_bind_dn}}
+
+dn: olcDatabase={{dbtype}},cn=config
+changetype: modify
+replace: olcRootPW
+olcRootPW: {{ldap_encripted_password.stdout}}
+
+{% if open_ldap_ssl_cert_path is defined %}
+dn: cn=config
+changetype: modify
+replace: olcTLSCertificateFile
+olcTLSCertificateFile: {{certs_path}}/cert.pem
+-
+replace: olcTLSCertificateKeyFile
+olcTLSCertificateKeyFile: {{certs_path}}/priv.pem
+
+{% endif %}

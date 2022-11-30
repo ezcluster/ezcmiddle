@@ -1,0 +1,89 @@
+---
+- include_vars: "{{ansible_os_family}}-vars.yml"
+- include_tasks: "{{ansible_os_family}}.yml"
+
+- block:
+  - name: Ensure certs folder exists
+    ansible.builtin.file:
+      state: directory
+      path: "{{certs_path}}"
+
+  - name: Activate ldaps services
+    ansible.builtin.lineinfile:
+      path: /etc/default/slapd
+      regexp: 'SLAPD_SERVICES=.*'
+      line: 'SLAPD_SERVICES="ldap:/// ldapi:/// ldaps:///"'
+
+  - name: Copy externaly generated certificate
+    copy:
+      src: "{{item.src}}"
+      dest: "{{item.dest}}"
+      owner: root
+      group: root
+      mode: 0644
+    with_items:
+    - { src: "{{open_ldap_ssl_cert_path}}", dest: "{{certs_path}}/cert.pem" }
+    - { src: "{{open_ldap_ssl_key_path}}", dest: "{{certs_path}}/priv.pem" }
+    notify: restart_slapd
+  when: open_ldap_ssl_cert_path is defined
+
+- meta: flush_handlers
+
+- name: Start and enable ldap service
+  service:
+    name: slapd
+    state: started
+    enabled: yes
+
+- name: Register encripted password
+  command: slappasswd -s "{{ldap_admin_bind_password}}"
+  register: ldap_encripted_password
+
+- name: Copy db templates
+  template:
+    src: db.ldif
+    dest: /tmp
+
+- name: Load ddbb template into ldap
+  command: ldapmodify -Y EXTERNAL  -H ldapi:/// -f /tmp/db.ldif
+
+- name: Load some schemas (ignoring duplicate entries error for idempotence)
+  command: "ldapadd -Y EXTERNAL -H ldapi:/// -f {{schema_path}}/{{item}}"
+  register: ldap_result_code
+  failed_when: ldap_result_code.rc not in [0,80]
+  changed_when: ldap_result_code.rc not in [0,80]
+  with_items:
+    - cosine.ldif
+    - nis.ldif
+    - inetorgperson.ldif
+
+- name: Load ldap root entry
+  ldap_entry:
+    server_uri: "{{ldap_server_uri}}"
+    bind_dn: "{{ldap_admin_bind_dn}}"
+    bind_pw: "{{ldap_admin_bind_password}}"
+    dn: "{{ldap_basedn}}"
+    objectClass:
+      - top
+      - domain
+
+- name: Load groups and users parent entry
+  ldap_entry:
+    server_uri: "{{ldap_server_uri}}"
+    bind_dn: "{{ldap_admin_bind_dn}}"
+    bind_pw: "{{ldap_admin_bind_password}}"
+    dn: "ou={{item}},{{ldap_basedn}}"
+    objectClass:
+      - organizationalUnit
+      - top
+  with_items:
+    - groups
+#    - people
+
+
+- include_tasks: "users.yml"
+
+- name: Restart ldap service
+  service:
+    name: slapd
+    state: restarted
