@@ -3,3 +3,5 @@
 export VAULT_ADDR=https://{{{ m.data.vault.endpoint_fqdn }}}:{{{ m.cluster.vault.port }}}
 
 echo "VAULT_ADDR=${VAULT_ADDR}"
+
+
