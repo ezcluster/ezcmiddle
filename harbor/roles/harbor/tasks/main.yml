@@ -61,6 +61,12 @@
     dest: "{{ harbor_install_dir }}/harbor/harbor.yml"
   notify:
   - harbor_install
+
+- debug: msg="Force run install"
+  changed_when: true
+  notify:
+  - harbor_install
+  tags: [ never, force_install ]
   
 - name: (re)deploy harbor if neeed
   meta: flush_handlers  
