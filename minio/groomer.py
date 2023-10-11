@@ -42,12 +42,11 @@ PARSED = "parsed"
 REPOSITORIES = "repositories"
 REPOSITORY = "repository"
 REPO_ID = "repo_id"
-CONSOLE = "console"
 TLS_CRT = "tls_crt"
 TLS_KEY = "tls_key"
 SERVER_CA = "server_ca"
 SOURCE_FILE_DIR = "sourceFileDir"
-TLS_BIND_PORT = "tls_bind_port"
+CONSOLE_BIND_PORT = "console_bind_port"
 
 poolRegex = re.compile('(http[s]?)://([^{]*){([0-9]+)\.\.\.([0-9]+)}([^/]*)/([^{]*){([0-9]+)\.\.\.([0-9]+)}(.*)')
 
@@ -114,6 +113,7 @@ def groom(_plugin, model):
         for tenant in model[CLUSTER][MINIO][TENANTS]:
             setDefaultInMap(tenant, BIND_ADDRESS, "0.0.0.0")
             setDefaultInMap(tenant, BIND_PORT, 9000)
+            setDefaultInMap(tenant, CONSOLE_BIND_PORT, 9001)
             setDefaultInMap(tenant, USER, "minio")
             setDefaultInMap(tenant, GROUP, "minio")
             lookupMinioRepository(model, tenant)
@@ -123,18 +123,6 @@ def groom(_plugin, model):
                 if (TLS_CRT in tenant) != (pool.startswith("https")):
                     ERROR("Pool must start with 'https' if (and only if) tls_crt is defined!")
                 tenant[POOL_EXTS].append({DEFINITION: pool, PARSED: parse_pool(model, pool)})
-            if CONSOLE in tenant:
-                setDefaultInMap(tenant[CONSOLE], BIND_ADDRESS, "0.0.0.0")
-                setDefaultInMap(tenant[CONSOLE], BIND_PORT, 9090)
-                setDefaultInMap(tenant[CONSOLE], TLS_BIND_PORT, 9443)
-                ensureTls(model, tenant[CONSOLE])
-                if TLS_CRT in tenant:
-                    if SERVER_CA in tenant[CONSOLE]:
-                        tenant[CONSOLE][SERVER_CA] = appendPath(model[DATA][SOURCE_FILE_DIR], tenant[CONSOLE][SERVER_CA])
-                        if not os.path.isfile(tenant[CONSOLE][SERVER_CA]):
-                            ERROR("Unable to find '{}'".format(tenant[CONSOLE][SERVER_CA]))
-                    else:
-                        ERROR("Tenant '{}' is configured for TLS. Console definition must include 'server_ca' parameter".format(tenant[NAME]))
         # Build the list of ansible node for each tenant
         for tenant in model[CLUSTER][MINIO][TENANTS]:
             nodeSet = set()

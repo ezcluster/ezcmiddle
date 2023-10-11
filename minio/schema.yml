@@ -34,6 +34,7 @@ mapping:
             "repo_id": { type: str, required: true }    
             "bind_address":  { type: str, required: false }   # Default: 0.0.0.0
             "bind_port": { type: int, required: false }       # Default: 9000
+            "console_bind_port": { type: int, required: false }       # Default: 9090
             "minio_root_user":  { type: str, required: true }
             "minio_root_password":  { type: str, required: true }
             "user": { type: str, required: false }   # Default: minio
@@ -45,14 +46,3 @@ mapping:
               required: true
               sequence: 
               - type: str
-            "console":
-              type: map
-              required: false
-              mapping:
-                "bind_address": { type: str, required: false }   # Default: 0.0.0.0
-                "bind_port": { type: int, required: false }       # Default: 9090
-                "tls_crt": { type: str, required: false }    
-                "tls_key": { type: str, required: false }    
-                "tls_bind_port": { type: int, required: false }       # Default: 9443
-                "server_ca": { type: str, required: false }    
-               

@@ -9,7 +9,8 @@ minio_service_name: "minio-server-{{ minio_instance_name }}"
 minio_user: minio
 minio_group: minio
 minio_bind_address: "0.0.0.0"
-minio_bind_port: 9000 
+minio_bind_port: 9000
+minio_console_bind_port: 9001
 minio_certs_dir: "{{ minio_etc_dir }}/certs"
 #minio_tls_crt: 
 #minio_tls_key: 

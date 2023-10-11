@@ -31,6 +31,5 @@ mapping:
           mapping:
             "repo_id": { type: str, required: True }
             "server_binary_url": { type: str, required: True }
-            "console_binary_url": { type: str, required: True }
-            
+
             
