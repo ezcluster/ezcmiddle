@@ -52,13 +52,17 @@ DOMAINS="domains"
 posix_mandatory = {CN, UID, "uidNumber", "gidNumber", "homeDirectory"}
 
 userByUid = {}
-userByCN = {}
+userByDN = {}
+userByCN = {}   # Just to check duplicated
 
-def lookupUser(str):
+def lookupUserByUid(str):
     if str in userByUid:
         return userByUid[str]
-    if str in userByCN:
-        return userByCN[str]
+    return None
+
+def lookupUserByDN(str):
+    if str in userByDN:
+        return userByDN[str]
     return None
 
 
@@ -110,7 +114,11 @@ def groom(plugin, model):
                     user2 = {}
                     user2[CN] = user[CN]
                     user2[SN] = user[SN]  # SN will also be left in optional attributes, to allow its modification
-                    dn = user2[DN] = "cn={},{}".format(user[CN], model[CLUSTER][LDAP_USERS][USERS_OU])
+                    if UID in user:
+                        user2[UID] = user[UID]
+                        dn = user2[DN] = "uid={},{}".format(user[UID], model[CLUSTER][LDAP_USERS][USERS_OU])
+                    else:
+                        dn = user2[DN] = "cn={},{}".format(user[CN], model[CLUSTER][LDAP_USERS][USERS_OU])
                     model[DATA][LDAP][PERSON_USERS].append(user2)
                     # Optional attributes
                     for attr in user:
@@ -131,7 +139,8 @@ def groom(plugin, model):
                 if UID in user2:
                     if user2[UID] in userByUid:
                         ERROR("Duplicated Uid: '{}' and '{}'".format(user2, userByUid[user2[UID]]))
-                    userByUid[user2[UID]] = user2                    
+                    userByUid[user2[UID]] = user2
+                userByDN[user2[DN]] = user2
         if GROUPS in model[CLUSTER][LDAP_USERS]:
             for group in model[CLUSTER][LDAP_USERS][GROUPS]:
                 if CLASS not in group:
@@ -160,17 +169,18 @@ def groom(plugin, model):
                 # Now, handle group membership 
                 if USERS in group:
                     for uname in group[USERS]:
-                        user = lookupUser(uname)
-                        if user == None:
-                            ERROR("Unable to lookup a user of uid or cn '{}' (Group:'{}')".format(uname, group[CN]))
                         attr = {}
                         attr[DN] = dn
                         if group[CLASS] == POSIX:
-                            if UID not in user:
-                                ERROR("User '{}' is missing 'uid' attribute. Can't include in a posix group ({})".format(user[CN], group[CN]))
+                            user = lookupUserByUid(uname)
+                            if user == None:
+                                ERROR("Unable to lookup a user of uid '{}' (Group:'{}')".format(uname, group[CN]))
                             attr[NAME] = "memberUid"
                             attr[VALUE] = user[UID]
                         else:
+                            user = lookupUserByDN(uname)
+                            if user == None:
+                                ERROR("Unable to lookup a user of dn '{}' (Group:'{}')".format(uname, group[CN]))
                             attr[NAME] = "member"
                             attr[VALUE] = user[DN]
                         model[DATA][LDAP][MEMBERSHIPS].append(attr)

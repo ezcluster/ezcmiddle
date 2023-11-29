@@ -65,7 +65,7 @@
     ldap_memberships:
 {%% for mbs in m.data.ldap.memberships %%}
     - dn: {{{ mbs.dn }}}
-      attributes: { {{{ mbs.name }}}: {{{ mbs.value }}} }
+      attributes: { {{{ mbs.name }}}: "{{{ mbs.value }}}" }
 {%% endfor %%}
 {%% else %%}
     ldap_memberships: []
